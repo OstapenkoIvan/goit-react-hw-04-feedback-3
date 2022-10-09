@@ -1,16 +1,52 @@
-export const App = () => {
+import { useState } from 'react';
+import Feedback from 'components/Feedback/Feedback';
+import { Title } from 'components/Title/Title';
+import Statistics from 'components/Statistics/Statistics';
+
+function App() {
+  const [status, setStatus] = useState({ good: 0, bad: 0, neutral: 0 });
+
+  const onFeedbackStateChange = evt => {
+    const { name } = evt.target;
+
+    setStatus(prevState => {
+      return {
+        ...prevState,
+        [name]: prevState[name] + 1,
+      };
+    });
+  };
+
+  const countTotalFeedback = () => {
+    return Object.values(status).reduce((acc, value) => acc + value, 0);
+    // return status.good + status.neutral + status.bad  ;
+  };
+
+  const countPositiveFeedbackPercentage = () => {
+    const percent = (status.good / countTotalFeedback()) * 100;
+    return Number.isNaN(percent) ? 0 : Math.round(percent);
+  };
+
   return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
+    <>
+      <Title title="Please leave your feedback">
+        <Feedback
+          options={Object.keys(status)}
+          onLeaveFeedback={onFeedbackStateChange}
+        />
+      </Title>
+      <Title title="Statistics">
+        <Statistics
+          message="There is no feedback"
+          good={status.good}
+          neutral={status.neutral}
+          bad={status.bad}
+          total={countTotalFeedback()}
+          percentage={countPositiveFeedbackPercentage()}
+        />
+      </Title>
+    </>
   );
-};
+}
+
+export default App;
